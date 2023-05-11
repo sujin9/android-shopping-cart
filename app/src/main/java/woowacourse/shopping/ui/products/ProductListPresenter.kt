@@ -16,7 +16,11 @@ class ProductListPresenter(
     }
 
     override fun loadProducts() {
-        view.setProducts(productRepository.findAll().map(ProductUIState::from))
+        view.setProducts(productRepository.findAll(20, 0).map(ProductUIState::from))
+    }
+
+    override fun loadProducts(offset: Int, limit: Int) {
+        view.addProducts(productRepository.findAll(limit, offset).map(ProductUIState::from))
     }
 
     override fun addRecentlyViewedProduct(productId: Long) {

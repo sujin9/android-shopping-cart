@@ -4,15 +4,16 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.isVisible
+import androidx.recyclerview.widget.ConcatAdapter
+import androidx.recyclerview.widget.LinearLayoutManager
 import woowacourse.shopping.R
 import woowacourse.shopping.database.product.ProductRepositoryImpl
 import woowacourse.shopping.database.recentlyviewedproduct.RecentlyViewedProductRepositoryImpl
 import woowacourse.shopping.databinding.ActivityProductListBinding
 import woowacourse.shopping.ui.cart.CartActivity
 import woowacourse.shopping.ui.productdetail.ProductDetailActivity
+import woowacourse.shopping.ui.products.adapter.LoadingButtonAdapter
 import woowacourse.shopping.ui.products.adapter.ProductListAdapter
-import woowacourse.shopping.ui.products.adapter.RecentlyViewedProductListAdapter
 
 class ProductListActivity : AppCompatActivity(), ProductListContract.View {
 
@@ -68,7 +69,7 @@ class ProductListActivity : AppCompatActivity(), ProductListContract.View {
     }
 
     override fun setRecentlyViewedProducts(recentlyViewedProducts: List<RecentlyViewedProductUIState>) {
-        if (recentlyViewedProducts.isEmpty()) {
+        /*if (recentlyViewedProducts.isEmpty()) {
             binding.layoutRecentlyViewed.isVisible = false
             return
         }
@@ -76,14 +77,28 @@ class ProductListActivity : AppCompatActivity(), ProductListContract.View {
         binding.recyclerViewRecentlyViewed.adapter =
             RecentlyViewedProductListAdapter(recentlyViewedProducts) {
                 moveToProductDetailActivity(recentlyViewedProducts[it].id)
-            }
+            }*/
     }
 
     override fun setProducts(products: List<ProductUIState>) {
-        binding.recyclerViewMainProduct.adapter = ProductListAdapter(products) {
+        val concatAdapter = ConcatAdapter()
+
+        val productListAdapter = ProductListAdapter(products) {
             presenter.addRecentlyViewedProduct(products[it].id)
             moveToProductDetailActivity(products[it].id)
         }
+        concatAdapter.addAdapter(productListAdapter)
+
+        val loadingButtonAdapter = LoadingButtonAdapter { offset, limit ->
+            presenter.loadProducts(offset, limit)
+        }
+        concatAdapter.addAdapter(loadingButtonAdapter)
+
+        binding.recyclerViewMainProduct.layoutManager = LinearLayoutManager(this)
+        binding.recyclerViewMainProduct.adapter = concatAdapter
+    }
+
+    override fun addProducts(products: List<ProductUIState>) {
     }
 
     private fun moveToProductDetailActivity(productId: Long) {
