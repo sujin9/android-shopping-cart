@@ -1,28 +1,94 @@
 package woowacourse.shopping.ui.products
 
-import android.database.Cursor
-import android.database.sqlite.SQLiteDatabase
+import androidx.recyclerview.widget.RecyclerView
 import androidx.test.core.app.ApplicationProvider
-import org.junit.Assert.assertTrue
+import androidx.test.espresso.Espresso.onView
+import androidx.test.espresso.action.ViewActions.click
+import androidx.test.espresso.assertion.ViewAssertions.matches
+import androidx.test.espresso.contrib.RecyclerViewActions.actionOnItemAtPosition
+import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
+import androidx.test.espresso.matcher.ViewMatchers.withId
+import androidx.test.ext.junit.rules.ActivityScenarioRule
+import androidx.test.ext.junit.runners.AndroidJUnit4
+import org.junit.Assert.assertEquals
+import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
-import woowacourse.shopping.database.ProductDBHelper
+import org.junit.runner.RunWith
+import woowacourse.shopping.R
+import woowacourse.shopping.database.recentlyviewedproduct.TestRecentlyProductRepositoryImpl
+import woowacourse.shopping.repository.RecentlyViewedProductRepository
 
+@RunWith(AndroidJUnit4::class)
 class ProductListActivityTest {
+    @get:Rule
+    internal val activityRule = ActivityScenarioRule(ProductListActivity::class.java)
+    private lateinit var repository: RecentlyViewedProductRepository
+
+    @Before
+    fun setUp() {
+        activityRule.scenario.onActivity {
+            it.deleteDatabase("product.db")
+        }
+        repository =
+            TestRecentlyProductRepositoryImpl(ApplicationProvider.getApplicationContext())
+//        repository.save(Product(1L, "", "하티", 1000))
+    }
 
     @Test
-    fun 최근_조회한_항목_테이블이_데이터베이스에_존재하는지_확인() {
-        val databaseHelper = ProductDBHelper(ApplicationProvider.getApplicationContext())
-        val db: SQLiteDatabase = databaseHelper.readableDatabase
+    fun 전체_상품_리사이클러뷰가_보인다() {
+        onView(withId(R.id.recycler_view_main_product))
+            .check(matches(isDisplayed()))
+    }
 
-        assertTrue(db != null)
+    @Test
+    fun 최근_본_상품_리사이클러뷰가_보인다() {
+        onView(withId(R.id.layout_recently_viewed))
+            .check(matches(isDisplayed()))
+    }
 
-        val cursor: Cursor = db.rawQuery(
-            "SELECT * FROM recently_viewed_product",
-            null,
+/*    @Test
+    fun 최근_본_상품_리사이클러뷰가_보이지_않는다_does_not_exist() {
+        onView(withId(R.id.recycler_view_recently_viewed))
+            .check(doesNotExist())
+    }*/
+
+/*    @Test
+    fun 최근_본_상품_리사이클러뷰가_보이지_않는다_not_is_displayed() {
+        onView(withId(R.id.recycler_view_recently_viewed))
+            .check(matches(not(isDisplayed())))
+    }
+
+    @Test
+    fun 최근_본_상품_리사이클러뷰가_보이지_않는다_with_effective_visibility() {
+        onView(withId(R.id.recycler_view_recently_viewed)).check(
+            matches(
+                withEffectiveVisibility(
+                    ViewMatchers.Visibility.GONE,
+                ),
+            ),
         )
-        assertTrue(cursor != null && cursor.count > 0)
+    }*/
 
-        cursor.close()
-        db.close()
+    @Test
+    fun 상품_한_개를_보면_최근_본_상품에_추가된다() {
+//        onView(withId(R.id.layout_recently_viewed))
+//            .check(matches(not(isDisplayed())))
+
+        onView(withId(R.id.recycler_view_main_product))
+            .perform(actionOnItemAtPosition<RecyclerView.ViewHolder>(1, click()))
+        val actual = repository.findAll()
+        assertEquals(1, actual.size)
+
+        Thread.sleep(10000)
+
+//        onView(ViewMatchers.isRoot()).perform(pressBack())
+        onView(withId(R.id.action_close))
+            .perform(click())
+
+        Thread.sleep(10000)
+
+        onView(withId(R.id.layout_recently_viewed))
+            .check(matches(isDisplayed()))
     }
 }
