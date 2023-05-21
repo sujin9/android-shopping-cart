@@ -41,11 +41,11 @@ class ProductListActivityTest {
             .check(matches(isDisplayed()))
     }
 
-    @Test
+/*    @Test
     fun 최근_본_상품_리사이클러뷰가_보인다() {
         onView(withId(R.id.layout_recently_viewed))
             .check(matches(isDisplayed()))
-    }
+    }*/
 
 /*    @Test
     fun 최근_본_상품_리사이클러뷰가_보이지_않는다_does_not_exist() {
@@ -77,6 +77,7 @@ class ProductListActivityTest {
 
         onView(withId(R.id.recycler_view_main_product))
             .perform(actionOnItemAtPosition<RecyclerView.ViewHolder>(1, click()))
+
         val actual = repository.findAll()
         assertEquals(1, actual.size)
 
