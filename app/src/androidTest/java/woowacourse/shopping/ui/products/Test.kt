@@ -32,7 +32,8 @@ class Test {
     @Before
     fun setup() {
         database =
-            ProductDBHelper(ApplicationProvider.getApplicationContext()).writableDatabase
+            ProductDBHelper(ApplicationProvider.getApplicationContext())
+                .writableDatabase
         database.delete("recently_viewed_product", null, null)
     }
 
@@ -82,7 +83,7 @@ class Test {
     fun 앱_첫_실행_후_상품_한_개를_보면_최근_본_상품_리사이클러뷰가_보인다() {
         ActivityScenario.launch(ProductListActivity::class.java).use {
             // 처음 앱이 실행되면 `최근 본 상품 리사이클러뷰`가 보이지 않는다
-            onView(withId(R.id.layout_recently_viewed))
+            onView(withId(R.id.recycler_view_recently_viewed))
                 .check(matches(not(isDisplayed())))
 
             // 상품을 클릭한다 (상품 상세 페이지 이동)
@@ -105,7 +106,7 @@ class Test {
 
         // 최근 본 항목이 보인다
         ActivityScenario.launch(ProductListActivity::class.java).use {
-            onView(withId(R.id.layout_recently_viewed))
+            onView(withId(R.id.recycler_view_recently_viewed))
                 .check(matches(isDisplayed()))
         }
     }
@@ -119,14 +120,17 @@ class Test {
             onView(withId(R.id.layout_recently_viewed))
                 .check(matches(isDisplayed()))
 
-            // 상품 리스트의 스크롤을 내리면
-            onView(withId(R.id.sv_products))
-                .perform(swipeUp())
+            상품_리사이클러뷰의_스크롤을_내리면()
 
             // 최근 본 상품 리사이클러뷰가 보이지 않는다
             onView(withId(R.id.recycler_view_recently_viewed))
                 .check(matches(not(isDisplayed())))
         }
+    }
+
+    private fun 상품_리사이클러뷰의_스크롤을_내리면() {
+        onView(withId(R.id.sv_products))
+            .perform(swipeUp())
     }
 
     private fun 상품을_클릭하면(상품_인덱스: Int) {
