@@ -26,10 +26,11 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import woowacourse.shopping.R
 
+// Espresso 녹화 기능으로 만들어진 테스트
+
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 class ProductListActivityTest2 {
-
     @Rule
     @JvmField
     var mActivityScenarioRule = ActivityScenarioRule(ProductListActivity::class.java)
@@ -59,13 +60,13 @@ class ProductListActivityTest2 {
             ),
         )
 
-/*        recentProductsViewGroup.check(
-            matches(
-                withEffectiveVisibility(
-                    ViewMatchers.Visibility.GONE,
-                ),
-            ),
-        )*/
+        /*        recentProductsViewGroup.check(
+                    matches(
+                        withEffectiveVisibility(
+                            ViewMatchers.Visibility.GONE,
+                        ),
+                    ),
+                )*/
         recentProductsViewGroup.check(
             matches(not(isDisplayed())),
         )
